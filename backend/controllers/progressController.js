@@ -60,7 +60,7 @@ export const getDashboard = async (req, res, next) => {
                     studyStreak
                 },
                 recentActivity:{
-                    document: recentDocuments,
+                    documents: recentDocuments,
                     quizzes: recentQuizzes
                 }
             }
