@@ -4,7 +4,7 @@ import { API_PATHS } from "../utils/apiPaths";
 const getDocuments = async () => {
   try {
     const response = await axiosInstance.get(API_PATHS.DOCUMENTS.GET_DOCUMENTS);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "Fail to fetch document" };
   }
