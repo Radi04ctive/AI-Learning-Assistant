@@ -42,7 +42,7 @@ const chat = async (documentId, question) => {
       documentId,
       question,
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "Chat request failed" };
   }
@@ -62,12 +62,10 @@ const explainConcept = async (documentId, concept) => {
 
 const getChatHistory = async (documentId) => {
   try {
-    const response = await axiosInstance.get(API_PATHS.AI.GET_CHAT_HISTORRY, {
-      documentId,
-    });
-    return response.data;
+    const response = await axiosInstance.get(API_PATHS.AI.GET_CHAT_HISTORRY(documentId));
+    return response.data.data;
   } catch (error) {
-    throw error.response?.data || { message: "Fail to explain concept" };
+    throw error.response?.data || { message: "Fail to get chat history" };
   }
 };
 
