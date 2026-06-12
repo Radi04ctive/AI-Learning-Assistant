@@ -72,14 +72,39 @@ const FlashcardManager = ({ documentId }) => {
 
     try {
       await flashcardService.reviewFlashcard(currentCard._id);
-      toast.success("Flasshcard reviewed");
+    //   toast.success("Flasshcard reviewed");
     } catch (error) {
       toast.error("Failed to review flashcard");
       console.error(error);
     }
   }
 
-  async function handleToggleStar() {}
+  async function handleToggleStar(cardId) {
+    try {
+      await flashcardService.toggleStar(cardId);
+      const updatedSets = flashcardSets.map((set) => {
+        if (set._id === selectedSet._id) {
+          const updatedCards = set.cards.map((card) =>
+            card._id === cardId ? { ...card, isStarred: !card.isStarred } : card,
+          );
+          return { ...set, cards: updatedCards };
+        }
+        return set;
+      });
+
+      setFlashcardSets(updatedSets);
+      setselectedSet(updatedSets.find((set) => set._id === selectedSet._id));
+
+      const updatedStarStatus = updatedSets
+        .find((set) => set._id === selectedSet._id)
+        .cards.find((card) => card._id === cardId).isStarred;
+
+      toast.success(updatedStarStatus ? "⭐ added to stars" : "removed from stars");
+    } catch (error) {
+      toast.error("Failed to add this card to stars");
+      console.error(error);
+    }
+  }
 
   function handleDeleteRequest(e, set) {
     e.stopPropagation();
@@ -111,7 +136,59 @@ const FlashcardManager = ({ documentId }) => {
   }
 
   function renderFlashcardViewer() {
-    return "renderFlashcardViewer";
+    const currentCard = selectedSet.cards[currentCardIndex];
+
+    return (
+      <div className="space-y-8">
+        {/* Back Button */}
+        <button
+          className="group inline-flex items-center gap-2 text-sm font-medium text-shadow-slate-600 hover:text-emerald-600 transition-colors duration-200 hover:cursor-pointer"
+          onClick={() => setselectedSet(null)}
+        >
+          <ArrowLeft strokeWidth={2} className="size-4 group-hover:-translate-x-1 transition-transform duration-200" />
+          Back to Sets
+        </button>
+
+        {/* Flashcard display */}
+        <div className="flex flex-col items-center space-y-8">
+          <div className="w-full max-w-2xl">
+            <Flashcard flashcard={currentCard} onToggleStar={handleToggleStar} />
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center gap-6">
+            <button
+              onClick={handlePrevCard}
+              disabled={selectedSet.cards.length <= 1}
+              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+            >
+              <ChevronLeft
+                className="size-4 group-hover:-translate-x-0.5 transition-all duration-200"
+                strokeWidth={2}
+              />
+              Previous
+            </button>
+            <div className="px-4 py-2 bg-slate-50 rounded-lg border border-slate-200">
+              <span className="text-sm font-semibold text-slate-700">
+                {currentCardIndex + 1} <span className="text-slate-400 font-normal">/</span> {selectedSet.cards.length}
+              </span>
+            </div>
+
+            <button
+              onClick={handleNextCard}
+              disabled={selectedSet.cards.length <= 1}
+              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+            >
+              Next
+              <ChevronRight
+                className="size-4 group-hover:translate-x-0.5 transition-all duration-200"
+                strokeWidth={2}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   function renderSetList() {
