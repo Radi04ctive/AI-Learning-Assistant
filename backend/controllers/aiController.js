@@ -10,7 +10,7 @@ import { findRelevantChunks } from "../utils/textChunker.js";
 // @access  Private
 export const generateFlashcards = async (req, res, next) => {
   try {
-    const { documentId, count } = req.body;
+    const { documentId, count=10 } = req.body;
 
     if (!documentId) {
       return res.status(400).json({
