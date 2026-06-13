@@ -13,13 +13,13 @@ const generateFlashcards = async (documentId, options={}) => {
   }
 };
 
-const generateQuiz = async (documentId, options) => {
+const generateQuiz = async (documentId, options={}) => {
   try {
     const response = await axiosInstance.post(API_PATHS.AI.GENERATE_QUIZ, {
       documentId,
       ...options,
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "Fail to generate quiz" };
   }
