@@ -86,7 +86,7 @@ export const submitQuiz = async (req, res, next) => {
     if (answers.length !== quiz.totalQuestions){
         return res.status(400).json({
         success: false,
-        error: "quiz must be complete",
+        error: "Please answer all questions then submit",
         statusCode: 400,
       }); 
     }
