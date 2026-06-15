@@ -83,54 +83,54 @@ export const submitQuiz = async (req, res, next) => {
     //   });
     // }
 
-    if (answers.length !== quiz.totalQuestions){
-        return res.status(400).json({
+    if (answers.length !== quiz.totalQuestions) {
+      return res.status(400).json({
         success: false,
         error: "Please answer all questions then submit",
         statusCode: 400,
-      }); 
+      });
     }
 
     // Process user answers
-    let correctCount = 0
-    const userAnswers = []
+    let correctCount = 0;
+    const userAnswers = [];
 
-    answers.forEach(answer => {
-        const {questionIndex, selectedAnswer} = answer
-        if(questionIndex < quiz.questions.length){
-            const question = quiz.questions[questionIndex]
-            const isCorrect = selectedAnswer  === question.correctAnswer
-            if (isCorrect) {
-                correctCount++
-            }
-            userAnswers.push({
-                questionIndex,
-                selectedAnswer,
-                isCorrect
-            })
+    answers.forEach((answer) => {
+      const { questionIndex, selectedAnswer } = answer;
+      if (questionIndex < quiz.questions.length) {
+        const question = quiz.questions[questionIndex];
+        const isCorrect = selectedAnswer === question.correctAnswer;
+        if (isCorrect) {
+          correctCount++;
         }
-    })
+        userAnswers.push({
+          questionIndex,
+          selectedAnswer,
+          isCorrect,
+        });
+      }
+    });
 
-    const score = Math.round((correctCount/quiz.totalQuestions) * 100)
+    const score = Math.round((correctCount / quiz.totalQuestions) * 100);
 
-    quiz.userAnswers = userAnswers
-    quiz.score = score
-    quiz.completedAt = new Date()
+    quiz.userAnswers = userAnswers;
+    quiz.score = score;
+    quiz.completedAt = new Date();
 
-    await quiz.save()
+    await quiz.save();
 
     res.status(200).json({
-        success: true,
-        data: {
-            quizId: quiz._id,
-            score,
-            correctCount,
-            totalQuestions: quiz.totalQuestions,
-            percentage: score,
-            userAnswers
-        },
-        message: 'quis result submited successfully'
-    })
+      success: true,
+      data: {
+        quizId: quiz._id,
+        score,
+        correctCount,
+        totalQuestions: quiz.totalQuestions,
+        percentage: score,
+        userAnswers,
+      },
+      message: "quis result submited successfully",
+    });
   } catch (error) {
     next(error);
   }
@@ -141,52 +141,52 @@ export const submitQuiz = async (req, res, next) => {
 // @access  Private
 export const getQuizResults = async (req, res, next) => {
   try {
-    const quiz = await Quiz.findOne({_id: req.params.id, userId:req.user._id}).populate('documentId', 'title')
+    const quiz = await Quiz.findOne({ _id: req.params.id, userId: req.user._id }).populate("documentId", "title");
 
     if (!quiz) {
-        return res.status(404).json({
-            success: false,
-            error: 'quiz not found',
-            statusCode: 404
-        })
+      return res.status(404).json({
+        success: false,
+        error: "quiz not found",
+        statusCode: 404,
+      });
     }
 
     if (!quiz.completedAt) {
-    return res.status(400).json({
+      return res.status(400).json({
         success: false,
-        error: 'Quiz not completed yet',
-        statusCode: 400
-    })
+        error: "Quiz not completed yet",
+        statusCode: 400,
+      });
     }
 
     const detailedResult = quiz.questions.map((question, index) => {
-        const userAnswer = quiz.userAnswers.find(a => a.questionIndex === index)
+      const userAnswer = quiz.userAnswers.find((a) => a.questionIndex === index);
 
-        return {
-            questionIndex: index,
-            question: question.question,
-            options: question.options,
-            correctAnswer: question.correctAnswer,
-            selectedAnswer: userAnswer?.selectedAnswer || null,
-            isCorrect: userAnswer?.isCorrect || false,
-            explanation: question.explanation
-        }
-    })
+      return {
+        questionIndex: index,
+        question: question.question,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        selectedAnswer: userAnswer?.selectedAnswer || null,
+        isCorrect: userAnswer?.isCorrect || false,
+        explanation: question.explanation,
+      };
+    });
 
     res.status(200).json({
-        success: true,
-        data:{
-            quiz: {
-                id: quiz._id,
-                title: quiz.title,
-                document: quiz.documentId,
-                score: quiz.score,
-                totalQuestions: quiz.totalQuestions,
-                completedAt: quiz.completedAt
-            },
-            results: detailedResult
-        }
-    })
+      success: true,
+      data: {
+        quiz: {
+          id: quiz._id,
+          title: quiz.title,
+          document: quiz.documentId,
+          score: quiz.score,
+          totalQuestions: quiz.totalQuestions,
+          completedAt: quiz.completedAt,
+        },
+        results: detailedResult,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -198,24 +198,24 @@ export const getQuizResults = async (req, res, next) => {
 export const deleteQuiz = async (req, res, next) => {
   try {
     const quiz = await Quiz.findOne({
-        _id: req.params.id,
-        userId: req.user._id
-    })
+      _id: req.params.id,
+      userId: req.user._id,
+    });
 
     if (!quiz) {
-        return res.status(404).json({
-            success: false,
-            error: 'quiz not found',
-            statusCode: 404
-        })
+      return res.status(404).json({
+        success: false,
+        error: "quiz not found",
+        statusCode: 404,
+      });
     }
 
-    await quiz.deleteOne()
+    await quiz.deleteOne();
 
     res.status(200).json({
-        success: true,
-        message: 'Quiz deleted successfully'
-    })
+      success: true,
+      message: "Quiz deleted successfully",
+    });
   } catch (error) {
     next(error);
   }

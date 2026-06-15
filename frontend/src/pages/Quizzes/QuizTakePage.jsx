@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
-import quizSerrvice from "../../services/quizService";
+import quizService from "../../services/quizService";
 import PageHeader from "../../components/common/PageHeader";
 import Spinner from "../../components/common/Spinner";
 import toast from "react-hot-toast";
@@ -21,7 +21,7 @@ const QuizTakePage = () => {
     async function fetchQuiz() {
       setLoading(true);
       try {
-        const data = await quizSerrvice.getQuizById(quizId);
+        const data = await quizService.getQuizById(quizId);
         setQuiz(data);
         toast.success("get the quiz successfully");
       } catch (error) {
@@ -55,7 +55,7 @@ const QuizTakePage = () => {
   }
 
   async function handleSubmitQuiz() {
-    if (Object.keys(selectedAnswers).length !== quiz.questions.length) {
+    if (answersCount !== quiz.questions.length) {
       toast.error("Please answer all questions then submit.");
       return
     }
@@ -70,7 +70,7 @@ const QuizTakePage = () => {
         const selectedAnswer = question.options[optionIndex]
         return {questionIndex, selectedAnswer}
       })
-      await quizSerrvice.submitQuiz(quizId, formattedAnswers);
+      await quizService.submitQuiz(quizId, formattedAnswers);
       toast.success('Submit Quiz successfully')
       navigate(`/quizzes/${quizId}/results`)
     } catch (error) {
@@ -113,12 +113,14 @@ const QuizTakePage = () => {
           <span className="text-sm text-shadow-slate-700 font-semibold">
             Question {currentQuestionIndex + 1} of {quiz.questions.length}
           </span>
-          <span className="text-sm text-slate-500 font-medium">{answersCount} answered</span>
+          <span className="text-sm text-slate-500 font-medium">
+            {answersCount===quiz.questions.length ? ("Completed") : (`${answersCount} Answered`)}
+          </span>
         </div>
         <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden ">
           <div
             className="absolute inset-y-0 left-0 bg-linear-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
+            style={{ width: `${((answersCount) / quiz.questions.length) * 100}%` }}
           />
         </div>
       </div>
