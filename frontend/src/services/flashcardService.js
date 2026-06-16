@@ -4,7 +4,7 @@ import { API_PATHS } from "../utils/apiPaths";
 const getAllFlashcardSets = async () => {
   try {
     const response = await axiosInstance.get(API_PATHS.FLASHCARDS.GET_ALL_FLASHCAARD_SETS);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "Fail to fetch flashcards" };
   }
