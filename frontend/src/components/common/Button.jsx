@@ -27,7 +27,7 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={[className, basStyle, variantStyle[variant], sizeStyle[size]].join(" ")}
+      className={[variantStyle[variant], basStyle, sizeStyle[size], className].join(" ")}
       variant={variant}
       size={size}
     >
@@ -36,4 +36,4 @@ const Button = ({
   );
 };
 
-export default Button
+export default Button;

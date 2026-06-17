@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Plus, ChevronLeft, ChevronRight, Trash2, ArrowLeft, Sparkles, Brain } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, ArrowLeft, Sparkles, Brain } from "lucide-react";
 import toast from "react-hot-toast";
-import moment from "moment";
 
 import flashcardService from "../../services/flashcardService.js";
 import aiService from "../../services/aiService.js";
 import Spinner from "../../components/common/Spinner.jsx";
 import Modal from "../../components/common/Modal.jsx";
 import Flashcard from "./Flashcard";
+import FlashcardSetCard from "./FlashcardSetCard.jsx";
 
 const FlashcardManager = ({ documentId }) => {
   const [flashcardSets, setFlashcardSets] = useState([]);
@@ -18,6 +18,8 @@ const FlashcardManager = ({ documentId }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [setToDelete, setSetToDelete] = useState(null);
+
+  const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
     async function fetchFlashcardSet() {
@@ -54,25 +56,37 @@ const FlashcardManager = ({ documentId }) => {
 
   function handleNextCard() {
     if (selectedSet) {
-      handleReviw(currentCardIndex);
       setCurrentCardIndex((prevIndex) => (prevIndex + 1) % selectedSet.cards.length);
+      setIsFlipped(false);
     }
   }
 
   function handlePrevCard() {
     if (selectedSet) {
-      handleReviw(currentCardIndex);
       setCurrentCardIndex((prevIndex) => (prevIndex - 1 + selectedSet.cards.length) % selectedSet.cards.length);
+      setIsFlipped(false);
     }
   }
 
-  async function handleReviw(index) {
-    const currentCard = selectedSet?.cards[index];
+  async function handleReviw() {
+    const currentCard = selectedSet?.cards[currentCardIndex];
     if (!currentCard) return;
 
     try {
       await flashcardService.reviewFlashcard(currentCard._id);
-    //   toast.success("Flasshcard reviewed");
+      //   toast.success("Flasshcard reviewed");
+      const updatedSets = flashcardSets.map((set) => {
+        if (set._id === selectedSet._id) {
+          const updatedCards = set.cards.map((card) =>
+            card._id === currentCard._id ? { ...card, reviewCount: card.reviewCount + 1 } : card,
+          );
+          return { ...set, cards: updatedCards };
+        }
+        return set;
+      });
+
+      setFlashcardSets(updatedSets);
+      setselectedSet(updatedSets.find((set) => set._id === selectedSet._id));
     } catch (error) {
       toast.error("Failed to review flashcard");
       console.error(error);
@@ -143,7 +157,10 @@ const FlashcardManager = ({ documentId }) => {
         {/* Back Button */}
         <button
           className="group inline-flex items-center gap-2 text-sm font-medium text-shadow-slate-600 hover:text-emerald-600 transition-colors duration-200 hover:cursor-pointer"
-          onClick={() => setselectedSet(null)}
+          onClick={() => {
+            setselectedSet(null);
+            setIsFlipped(false);
+          }}
         >
           <ArrowLeft strokeWidth={2} className="size-4 group-hover:-translate-x-1 transition-transform duration-200" />
           Back to Sets
@@ -152,7 +169,13 @@ const FlashcardManager = ({ documentId }) => {
         {/* Flashcard display */}
         <div className="flex flex-col items-center space-y-8">
           <div className="w-full max-w-2xl">
-            <Flashcard flashcard={currentCard} onToggleStar={handleToggleStar} />
+            <Flashcard
+              flashcard={currentCard}
+              onToggleStar={handleToggleStar}
+              onReview={handleReviw}
+              isFlipped={isFlipped}
+              setIsFlipped={setIsFlipped}
+            />
           </div>
 
           {/* Navigation */}
@@ -261,41 +284,14 @@ const FlashcardManager = ({ documentId }) => {
         </div>
 
         {/* Flasshcard Sets Gride */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {flashcardSets.map((set) => (
-            <div
-              className="group relative bg-white/80 border-2 border-slate-200 hover:border-emerald-300 rounded-2xl p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/25"
+            <FlashcardSetCard
               key={set._id}
-              onClick={() => handleSelectSet(set)}
-            >
-              {/* Delete Button */}
-              <button
-                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                onClick={(e) => handleDeleteRequest(e, set)}
-              >
-                <Trash2 className="size-4" strokeWidth={2} />
-              </button>
-
-              {/* Set Content */}
-              <div className="space-y-4">
-                <div className="inline-flex items-center justify-center size-12 rounded-xl bg-linear-to-br from-emerald-100 to-teal-100">
-                  <Brain className="size-6 text-emerald-600" strokeWidth={2} />
-                </div>
-                <div>
-                  <h4 className="text-base font-semibold text-slate-900 mb-1">Flashcard Set</h4>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-                    {moment(set.createdAt).format("MMM D, YYYY")}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60 ">
-                  <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <span className="text-sm font-semibold text-emerald-700">
-                      {set.cards.length} {set.cards.length === 1 ? "card" : "cards"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              flashcardSet={set}
+              onStudy={handleSelectSet}
+              onDelete={handleDeleteRequest}
+            />
           ))}
         </div>
       </div>

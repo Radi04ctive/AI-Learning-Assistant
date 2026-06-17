@@ -6,13 +6,13 @@ const QuizCard = ({ quiz, onDelete }) => {
   return (
     <div className="group relative bg-white/80 border-2 border-slate-200 hover:border-emerald-300 rounded-2xl p-4 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/10 flex flex-col justify-between">
       <button
-        className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+        className="absolute top-4 right-4 p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
         onClick={(e) => {
           e.stopPropagation();
           onDelete(quiz);
         }}
       >
-        <Trash2 className="size-4" strokeWidth={2} />
+        <Trash2 className="size-5" strokeWidth={2} />
       </button>
 
       <div className="space-y-4">

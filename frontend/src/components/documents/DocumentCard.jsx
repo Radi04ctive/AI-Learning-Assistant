@@ -30,15 +30,21 @@ const DocumentCard = ({ document, onDelete }) => {
     onDelete(document);
   }
   return (
-    <div className="group relative bg-white/80 backdrop-blur-xl border  border-slate-200/60 rounded-2xl p-5 hover:border-slate-300/60 hover:shadow-xl  hover:shadow-slate-200/50 transition-all duration-200 flex flex-col justify-between  cursor-pointer hover:-translate-y-1" onClick={handleNavigate}>
+    <div
+      className="group relative bg-white/80 backdrop-blur-xl border  border-slate-200/60 rounded-2xl p-5 hover:border-slate-300/60 hover:shadow-xl  hover:shadow-slate-200/50 transition-all duration-200 flex flex-col justify-between  cursor-pointer hover:-translate-y-1"
+      onClick={handleNavigate}
+    >
       {/* Header section */}
       <div>
         <div className="flex items-start  justify-between gap-3 mb-4">
           <div className="shrink-0 size-12 bg-linear-to-br from-emerald-500 to-cyan-500 flex items-center justify-center rounded-xl shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform duration-200">
             <FileText className="size-6 text-white" strokeWidth={2} />
           </div>
-          <button className="opacity-0 group-hover:opacity-100  size-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 cursor-pointer" onClick={handleDelete}>
-            <Trash2 className="size-4" strokeWidth={2} />
+          <button
+            className="opacity-0 group-hover:opacity-100  p-3 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 cursor-pointer"
+            onClick={handleDelete}
+          >
+            <Trash2 className="size-5" strokeWidth={2} />
           </button>
         </div>
         {/* Title */}

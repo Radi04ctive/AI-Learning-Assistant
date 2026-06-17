@@ -1,20 +1,19 @@
-import { useState } from "react";
 import { Star, RotateCcw } from "lucide-react";
 
-const Flashcard = ({ flashcard, onToggleStar }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
+const Flashcard = ({ flashcard, onToggleStar, onReview, isFlipped, setIsFlipped }) => {
+  
   return (
     <div className="relative w-full h-72" style={{ perspective: "1000px" }}>
       <div
         className={`relative w-full h-full transition-transform duration-500 transform-gpu cursor-pointer`}
-        style={{ transformStyle: "preserve-3d", transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)"}}
+        style={{ transformStyle: "preserve-3d", transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* front of the card (question) */}
         <div
           className="absolute inset-0 w-ful h-full bg-white/80 border-2 border-slate-200/60 rounded-2xl shadow-lg shadow-slate-200/50 p-8 flex flex-col justify-between"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+          onClick={onReview}
         >
           {/* Star button*/}
           <div className="flex items-center justify-between ">
@@ -60,7 +59,12 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
           }}
         >
           {/* star button */}
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <div className="bg-slate-500 px-3 py-1 rounded-lg">
+              <span className="text-sm text-white">
+                {flashcard.reviewCount} {flashcard.reviewCount > 1 ? "times" : "time"} Reviewd
+              </span>
+            </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
