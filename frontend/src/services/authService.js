@@ -29,7 +29,7 @@ const register = async (username, email, password) => {
 const getProfile = async () => {
   try {
     const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || { message: "An unknown error occurred" };
   }
@@ -46,7 +46,7 @@ const updateProfile = async (userData) => {
 
 const changePassword = async (passwords) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AUTH.UPDATE_PROFILE, passwords);
+    const response = await axiosInstance.post(API_PATHS.AUTH.CHANGE_PASSWORD, passwords);
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "An unknown error occurred" };
