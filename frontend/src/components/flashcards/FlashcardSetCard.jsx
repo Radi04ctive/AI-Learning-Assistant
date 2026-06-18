@@ -8,8 +8,7 @@ const FlashcardSetCard = ({ flashcardSet, onStudy, onDelete }) => {
 
   return (
     <div
-      className="group relative bg-white/80 backdrop-blur-xl border-2 border-slate-200 hover:border-emerald-300 rounded-2xl p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/10 flex flex-col justify-between"
-      onClick={() => onStudy(flashcardSet)}
+      className="group relative bg-white/80 backdrop-blur-xl border-2 border-slate-200 hover:border-emerald-300 rounded-2xl p-6 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/10 flex flex-col justify-between"
     >
       <div className="space-y-4">
         {/* Icon and Title */}
@@ -19,7 +18,7 @@ const FlashcardSetCard = ({ flashcardSet, onStudy, onDelete }) => {
           </div>
           {/* Delete Button */}
           <button
-            className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+            className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"
             onClick={(e) => onDelete(e, flashcardSet)}
           >
             <Trash2 className="size-5" strokeWidth={2} />

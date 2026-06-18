@@ -71,7 +71,7 @@ const QuizResultPage = () => {
       {/* Back button */}
       <div className="mb-6">
         <Link
-          to={`/documents/${quiz.document._id}`}
+          to={`/documents/${quiz.document._id}?tab=Quizzes`}
           className="group inline-flex items-center gap-2 font-medium text-slate-600 hover:text-emerald-600 transition-all duration-200"
         >
           <ArrowLeft className="size-4 group-hover:-translate-x-1 duration-200 transition-transform" strokeWidth={2} />
@@ -218,7 +218,7 @@ const QuizResultPage = () => {
 
       {/* Action  Button */}
       <div className="mt-8 flex justify-center">
-        <Link to={`/documents/${quiz.document._id}`}>
+        <Link to={`/documents/${quiz.document._id}?tab=Quizzes`}>
           <button className="group  px-8 h-12 bg-linear-to-b from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg   shadow-emerald-500/20 active:scale-95 overflow-hidden">
             <span className="flex items-center gap-2">
               <ArrowLeft

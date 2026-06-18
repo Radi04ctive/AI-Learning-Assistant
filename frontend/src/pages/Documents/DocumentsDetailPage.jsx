@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import documentService from "../../services/documentService.js";
 import Spinner from "../../components/common/Spinner.jsx";
 import toast from "react-hot-toast";
@@ -12,11 +12,34 @@ import AIActions from "../../components/ai/AIActions.jsx";
 import FlashcardManager from "../../components/flashcards/FlashcardManager.jsx";
 import QuizManager from "../../components/quizzes/QuizManager.jsx";
 
+const DEFAULT_TAB = "Content";
+const TAB_QUERY_PARAM = "tab";
+const TAB_NAMES = ["Content", "Chat", "AI Actions", "Flashcards", "Quizzes"];
+
 const DocumentsDetailPage = () => {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   const [document, setDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("Content");
+
+  const requestedTab = searchParams.get(TAB_QUERY_PARAM);
+  const activeTab = TAB_NAMES.includes(requestedTab) ? requestedTab : DEFAULT_TAB;
+
+  useEffect(() => {
+    if (!requestedTab || TAB_NAMES.includes(requestedTab)) {
+      return;
+    }
+
+    setSearchParams(
+      (currentSearchParams) => {
+        const nextSearchParams = new URLSearchParams(currentSearchParams);
+        nextSearchParams.delete(TAB_QUERY_PARAM);
+        return nextSearchParams;
+      },
+      { replace: true }
+    );
+  }, [requestedTab, setSearchParams]);
 
   useEffect(() => {
     async function fetchDocument() {
@@ -93,8 +116,22 @@ const DocumentsDetailPage = () => {
     { name: "Chat", label: "Chat", content: renderChat() },
     { name: "AI Actions", label: "AI Actions", content: renderAIActions() },
     { name: "Flashcards", label: "Flashcards", content: renderFlashcardsTab() },
-    { name: "Quizzses", label: "Quizzses", content: renderQuizzesTab() },
+    { name: "Quizzes", label: "Quizzes", content: renderQuizzesTab() },
   ];
+
+  const setActiveTab = (tabName) => {
+    setSearchParams((currentSearchParams) => {
+      const nextSearchParams = new URLSearchParams(currentSearchParams);
+
+      if (tabName === DEFAULT_TAB) {
+        nextSearchParams.delete(TAB_QUERY_PARAM);
+      } else {
+        nextSearchParams.set(TAB_QUERY_PARAM, tabName);
+      }
+
+      return nextSearchParams;
+    });
+  };
 
   if (isLoading) {
     return <Spinner />;
