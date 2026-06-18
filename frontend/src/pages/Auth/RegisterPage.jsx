@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService.js";
-import { BrainCircuit, Mail, Lock, ArrowRight, User } from "lucide-react";
+import { BrainCircuit, Mail, ArrowRight, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth.js";
+import PasswordInput from "../../components/common/PasswordInput.jsx";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -11,7 +12,6 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -29,7 +29,7 @@ const RegisterPage = () => {
 
     try {
       const { token, user } = await authService.register(username, email, password);
-      console.log(token , user)
+      console.log(token, user);
       login(user, token);
       toast.success("Registration is successful. You are logging-in ...");
       navigate("/dashboard");
@@ -59,70 +59,47 @@ const RegisterPage = () => {
           <div onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               {/* email field */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide pl-2">Email</label>
                 <div className="relative group">
-                  <div
-                    className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 ${focusedField === "email" ? "text-emerald-500" : "text-slate-400"}`}
-                  >
-                    <Mail className="h-5 w-5" strokeWidth={2} />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 text-slate-400">
+                    <Mail className="size-4" strokeWidth={2} />
                   </div>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => setFocusedField(null)}
                     placeholder="you@example.com"
-                    className="w-full h-12 pl-12 pr-4 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-sm font-medium transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
+                    className="w-full h-9 pl-12 pr-4 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-sm font-medium transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
                   />
                 </div>
               </div>
 
               {/* username field */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide pl-2">
                   Username
                 </label>
                 <div className="relative group">
-                  <div
-                    className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200 ${focusedField === "username" ? "text-emerald-500" : "text-slate-400"}`}
-                  >
-                    <User className="h-5 w-5" strokeWidth={2} />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors duration-200">
+                    <User className="size-4 text-slate-400" strokeWidth={2} />
                   </div>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    onFocus={() => setFocusedField("username")}
-                    onBlur={() => setFocusedField(null)}
                     placeholder="Your Username"
-                    className="w-full h-12 pl-12 pr-4 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-sm font-medium transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
+                    className="w-full h-9 pl-12 pr-4 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-sm font-medium transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
                   />
                 </div>
               </div>
 
               {/* password field */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide pl-2">
                   Password
                 </label>
-                <div className="relative group">
-                  <div
-                    className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${focusedField === "password" ? "text-emerald-500" : "text-slate-400"}`}
-                  >
-                    <Lock className="h-5 w-5" strokeWidth={2} />
-                  </div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocusedField("password")}
-                    onBlur={() => setFocusedField(null)}
-                    placeholder="••••••••"
-                    className="w-full h-12 pl-12 pr-4 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-4xl font-bold transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
-                  />
-                </div>
+                <PasswordInput value={password} setValue={setPassword} />
               </div>
 
               {/* Error message */}

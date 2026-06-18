@@ -3,9 +3,9 @@ import PageHeader from "../../components/common/PageHeader";
 import Button from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
 import authService from "../../services/authService.js";
-import { useAuth } from "../../hooks/useAuth.js";
 import toast from "react-hot-toast";
-import { User, Mail, Lock } from "lucide-react";
+import { User, Mail } from "lucide-react";
+import PasswordInput from "../../components/common/PasswordInput.jsx";
 
 const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
@@ -106,48 +106,15 @@ const ProfilePage = () => {
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-neutral-700 mb-1.5">Current Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="size-4 text-neutral-400" />
-                </div>
-                <input
-                  type="password"
-                  className="w-full h-9 pl-9 pr-3 pt-2 border border-neutral-200 rounded-lg bg-white text-4xl font-bold text-neutral-900 placeholder-neutral-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#00d492] focus:border-transparent"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <PasswordInput value={currentPassword} setValue={setCurrentPassword}/>
             </div>
             <div>
               <label className="block text-xs font-medium text-neutral-700 mb-1.5">New Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="size-4 text-neutral-400" />
-                </div>
-                <input
-                  type="password"
-                  className="w-full h-9 pl-9 pr-3 pt-2 border border-neutral-200 rounded-lg bg-white text-4xl font-bold text-neutral-900 placeholder-neutral-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#00d492] focus:border-transparent"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <PasswordInput  value={newPassword} setValue={setNewPassword}/>
             </div>
             <div>
               <label className="block text-xs font-medium text-neutral-700 mb-1.5">Confirm New Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="size-4 text-neutral-400" />
-                </div>
-                <input
-                  type="password"
-                  className="w-full h-9 pl-9 pr-3 pt-2 border border-neutral-200 rounded-lg bg-white text-4xl font-bold text-neutral-900 placeholder-neutral-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#00d492] focus:border-transparent"
-                  value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <PasswordInput value={confirmNewPassword} setValue={setConfirmNewPassword}/>
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={passwordLoading}>
