@@ -1,3 +1,4 @@
+# For mongo-only local dev. Full stack: use docker-compose.yml at project root.
 services:
   mongo:
     image: mongo:7

@@ -4,7 +4,8 @@ const connectDB = async () => {
   const { MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_HOST, MONGO_PORT } = process.env;
 
   const MONGO_DB = process.env.MONGO_DB || "";
-  const uri = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`;
+  const authQuery = !MONGO_DB ? "?authSource=admin" : "";
+  const uri = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}${authQuery}`;
   try {
     const conn = await mongoose.connect(uri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);

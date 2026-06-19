@@ -4,6 +4,8 @@ import Quiz from "../models/Quiz.js";
 import { extractTextFromPDF } from "../utils/pdfParser.js";
 import { chunkText } from "../utils/textChunker.js";
 import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 
 // @desc    Upload PDF document
@@ -22,8 +24,8 @@ export const uploadDocument = async (req, res, next) => {
     const title = req.body.title || req.file.originalname;
 
     // Construct the URL for the uploaded file
-    const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
-    const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
+    const publicBase = (process.env.PUBLIC_BASE_URL || "").replace(/\/$/, "");
+    const fileUrl = `${publicBase}/uploads/documents/${req.file.filename}`;
 
     // Create document entry in DB
     const document = await Document.create({
@@ -190,7 +192,12 @@ export const deleteDocument = async (req, res, next) => {
     }
 
     // Delete file from the file system
-    fs.unlink(document.filePath.replace(`http://localhost:${process.env.PORT || 8000}`, ".")).catch(() => {});
+    const diskPath = path.join(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../uploads/documents",
+      path.basename(document.filePath),
+    );
+    await fs.unlink(diskPath).catch(() => {});
 
     // Delete the document
     await document.deleteOne();
