@@ -1,5 +1,6 @@
+import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
-import { API_PATHS } from "../utils/apiPaths";
+import { API_PATHS, BASE_URL } from "../utils/apiPaths";
 
 const login = async (email, password) => {
   try {
@@ -21,6 +22,33 @@ const register = async (username, email, password) => {
       username,
     });
     return response.data.data;
+  } catch (error) {
+    throw error.response?.data || { message: "An unknown error occurred" };
+  }
+};
+
+// Exchange a refresh token for a new access/refresh pair. Uses a plain axios
+// import (not the interceptored instance) so the response interceptor's 401
+// refresh logic can't recurse into itself.
+const refreshToken = async (refreshTokenValue) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}${API_PATHS.AUTH.REFRESH}`,
+      { refreshToken: refreshTokenValue },
+      { headers: { "Content-Type": "application/json", Accept: "application/json" } },
+    );
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || { message: "An unknown error occurred" };
+  }
+};
+
+const logout = async (refreshTokenValue) => {
+  try {
+    const response = await axiosInstance.post(API_PATHS.AUTH.LOGOUT, {
+      refreshToken: refreshTokenValue,
+    });
+    return response.data;
   } catch (error) {
     throw error.response?.data || { message: "An unknown error occurred" };
   }
@@ -56,6 +84,8 @@ const changePassword = async (passwords) => {
 const authService = {
   login,
   register,
+  refreshToken,
+  logout,
   getProfile,
   updateProfile,
   changePassword,

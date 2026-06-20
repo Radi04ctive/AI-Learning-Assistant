@@ -1,14 +1,14 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.js";
 import { LayoutDashboard, FileText, User, LogOut, BrainCircuit, X } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
   const { logout } = useAuth();
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    // logout() clears local state and hard-redirects to "/", so no separate
+    // navigation is needed here.
+    await logout();
   };
 
   const navLinks = [

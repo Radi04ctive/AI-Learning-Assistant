@@ -6,6 +6,7 @@ import authService from "../../services/authService.js";
 import toast from "react-hot-toast";
 import { User, Mail } from "lucide-react";
 import PasswordInput from "../../components/common/PasswordInput.jsx";
+import { setTokens } from "../../utils/tokenStorage.js";
 
 const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
@@ -49,13 +50,21 @@ const ProfilePage = () => {
     }
 
     try {
-      await authService.changePassword({currentPassword, newPassword})
+      const result = await authService.changePassword({currentPassword, newPassword})
+      // The backend issues fresh tokens after invalidating all other sessions.
+      // Swap them in so the current device continues seamlessly.
+      if (result.data?.accessToken && result.data?.refreshToken) {
+        setTokens({
+          accessToken: result.data.accessToken,
+          refreshToken: result.data.refreshToken,
+        });
+      }
       toast.success('Password Changed')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmNewPassword('')
     } catch (error) {
-      toast.error(error.mesaage || "Failed to change the password")
+      toast.error(error.message || "Failed to change the password")
       console.error(error)
     } finally {
       setPasswordLoading(false)

@@ -1,6 +1,6 @@
 import express from "express";
 import { body } from "express-validator";
-import { register, login, getProfile, updateProfile, changePassword } from "../controllers/authController.js";
+import { register, login, getProfile, updateProfile, changePassword, logout, refresh } from "../controllers/authController.js";
 import protect from "../middleware/auth.js";
 
 const router = express.Router();
@@ -16,9 +16,17 @@ const loginValidation = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+const refreshValidation = [
+  body("refreshToken").notEmpty().withMessage("Refresh token is required"),
+];
+
 // Public routes
 router.post("/register", registerValidation, register);
 router.post("/login", loginValidation, login);
+router.post("/refresh", refreshValidation, refresh);
+// Logout is public: it reads the bearer token from the header to blacklist its
+// jti but must still succeed after the access token has expired.
+router.post("/logout", logout);
 
 // Protected routes
 router.get("/profile", protect, getProfile);

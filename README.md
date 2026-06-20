@@ -5,7 +5,8 @@ A full-stack learning platform that turns uploaded PDF study materials into inte
 ## Features
 
 ### Authentication & profile
-- User registration and login with JWT-based sessions
+- User registration and login with short-lived JWT access tokens + rotating refresh tokens
+- Token blacklist via Redis enables true logout (single device and "logout everywhere") and password-change invalidation
 - Protected routes for all learning features
 - Profile management (update profile, change password)
 
@@ -47,9 +48,10 @@ All AI features run against the content of your uploaded documents:
 | Layer | Technologies |
 |-------|--------------|
 | **Frontend** | React 19, Vite 8, React Router 7, Tailwind CSS 4, Axios, react-markdown |
-| **Backend** | Node.js 24, Express 5, Mongoose, JWT, bcrypt, Multer |
+| **Backend** | Node.js 24, Express 5, Mongoose, JWT (access + refresh), bcrypt, Multer |
 | **AI** | Google Gemini API (`@google/genai`) |
 | **Database** | MongoDB 7 |
+| **Cache / token blacklist** | Redis 7 (ioredis) |
 | **PDF processing** | pdf-parse, custom text chunker for RAG-style context |
 | **Deployment** | Docker, Docker Compose, nginx (reverse proxy + static SPA) |
 | **Package manager** | pnpm |
@@ -80,16 +82,16 @@ AiLearningAssitant/
 
 ## Run locally (development)
 
-### 1. Start MongoDB
+### 1. Start MongoDB and Redis
 
-From the project root, start MongoDB (and optional Mongo Express admin UI):
+From the project root, start MongoDB and Redis (plus the optional Mongo Express admin UI):
 
 ```bash
 cd backend
 docker compose up -d
 ```
 
-MongoDB runs on `localhost:27017`. Mongo Express (optional) is at `http://localhost:8081`.
+MongoDB runs on `localhost:27017`, Redis on `localhost:6379`. Mongo Express (optional) is at `http://localhost:8081`.
 
 ### 2. Configure environment
 
@@ -110,6 +112,10 @@ PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-long-random-secret
 JWT_EXPIRE=7d
+JWT_ACCESS_EXPIRE=15m
+JWT_REFRESH_EXPIRE=7d
+JWT_REFRESH_SECRET=your-long-random-refresh-secret
+REDIS_URL=redis://localhost:6379
 MAX_FILE_SIZE=10485760
 GEMINI_API_KEY=your-gemini-api-key
 PUBLIC_BASE_URL=http://localhost:3000
@@ -211,13 +217,17 @@ docker compose down -v          # stop and remove volumes (deletes DB + uploads)
 | `ME_WEB_PASSWORD` | Mongo Express login password | strong password |
 | `PORT` | Backend listen port | `3000` |
 | `NODE_ENV` | Runtime mode | `production` |
-| `JWT_SECRET` | Secret for signing auth tokens | long random string |
-| `JWT_EXPIRE` | Token lifetime | `7d` |
+| `JWT_SECRET` | Secret for signing access tokens | long random string |
+| `JWT_EXPIRE` | Legacy access-token lifetime (kept for compatibility) | `7d` |
+| `JWT_ACCESS_EXPIRE` | Short-lived access-token lifetime | `15m` |
+| `JWT_REFRESH_EXPIRE` | Refresh-token lifetime | `7d` |
+| `JWT_REFRESH_SECRET` | Separate secret reserved for signed refresh tokens | long random string |
+| `REDIS_URL` | Redis connection (token blacklist) | `redis://redis:6379` (Docker), `redis://localhost:6379` (local) |
 | `MAX_FILE_SIZE` | Max upload size in bytes | `10485760` (10 MB) |
 | `GEMINI_API_KEY` | Google Gemini API key | from AI Studio |
 | `PUBLIC_BASE_URL` | Base URL for uploaded file links; leave empty in Docker for relative URLs | `http://localhost:3000` locally |
 
-Docker Compose also sets `MONGO_HOST=mongo` on the backend service (internal network hostname).
+Docker Compose also sets `MONGO_HOST=mongo` and `REDIS_URL=redis://redis:6379` on the backend service (internal network hostnames).
 
 ### Frontend `frontend/.env`
 
@@ -233,7 +243,7 @@ Docker Compose also sets `MONGO_HOST=mongo` on the backend service (internal net
 
 | Prefix | Purpose |
 |--------|---------|
-| `/api/auth` | Register, login, profile |
+| `/api/auth` | Register, login, refresh, logout, profile, change password |
 | `/api/documents` | Upload, list, get, delete PDFs |
 | `/api/ai` | Chat, summary, flashcards, quizzes, explain concept |
 | `/api/flashcards` | Manage and study flashcard sets |

@@ -30,6 +30,18 @@ services:
       mongo:
         condition: service_healthy
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./backend
     restart: unless-stopped
@@ -40,10 +52,13 @@ services:
       MONGO_PORT: 27017
       NODE_ENV: production
       PUBLIC_BASE_URL: ""
+      REDIS_URL: redis://redis:6379
     volumes:
       - uploads_data:/app/uploads
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   frontend:
@@ -60,3 +75,4 @@ services:
 volumes:
   mongo_data:
   uploads_data:
+  redis_data:

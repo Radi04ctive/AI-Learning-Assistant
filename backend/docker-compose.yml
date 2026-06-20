@@ -11,6 +11,15 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
   mongo-express:
     image: mongo-express:1.0.2-20-alpine3.19
     restart: always
@@ -29,3 +38,4 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${ME_WEB_PASSWORD}
 volumes:
   mongo_data:
+  redis_data:

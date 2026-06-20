@@ -1,6 +1,13 @@
-import {useState, useEffect } from "react";
-import {AuthContext} from "../hooks/useAuth.js";
-
+import { useState, useEffect } from "react";
+import { AuthContext } from "../hooks/useAuth.js";
+import {
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+  clearTokens,
+} from "../utils/tokenStorage.js";
+import axiosInstance from "../utils/axiosInstance.js";
+import { API_PATHS } from "../utils/apiPaths.js";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -9,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAccessToken();
       const userStr = localStorage.getItem("user");
 
       if (token && userStr) {
@@ -25,16 +32,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (userData, token) => {
-    localStorage.setItem("token", token);
+  const login = (userData, accessToken, refreshToken) => {
+    setTokens({ accessToken, refreshToken });
     localStorage.setItem("user", JSON.stringify(userData));
 
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  const logout = async () => {
+    // Tell the server to blacklist this access token's jti and delete the
+    // refresh token. Best-effort: we clear local state regardless of outcome.
+    const refreshToken = getRefreshToken();
+    try {
+      await axiosInstance.post(API_PATHS.AUTH.LOGOUT, { refreshToken });
+    } catch (error) {
+      // Ignore: token may already be invalid/expired; we log out locally anyway.
+      console.error("Logout request failed:", error.message);
+    }
+
+    clearTokens();
     localStorage.removeItem("user");
 
     setUser(null);

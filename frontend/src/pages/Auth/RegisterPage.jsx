@@ -28,9 +28,8 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const { token, user } = await authService.register(username, email, password);
-      console.log(token, user);
-      login(user, token);
+      const { accessToken, refreshToken, user } = await authService.register(username, email, password);
+      login(user, accessToken, refreshToken);
       toast.success("Registration is successful. You are logging-in ...");
       navigate("/dashboard");
     } catch (err) {

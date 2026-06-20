@@ -6,6 +6,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from './config/db.js'
+import { connectRedis } from './config/redis.js'
 import errorHandler from './middleware/errorHandler.js'
 
 import authRoutes from './routes/authRoutes.js'
@@ -24,6 +25,9 @@ const app = express();
 
 // Connect to MongoDB
 connectDB();
+
+// Connect to Redis (used for the token blacklist)
+connectRedis();
 
 // Middleware to handle CORS
 app.use(
